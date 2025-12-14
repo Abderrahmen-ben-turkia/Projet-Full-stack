@@ -25,8 +25,18 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/*
+ * This CSS creates a gradient mask on the left and right sides
+ * of the slider container (the element with the `overflow-hidden` class).
+ * The mask is semi-transparent at the edges, making the logos fade.
+ *//* Smooth infinite horizontal scroll */
+.slider-track {
+  display: flex;
+  width: max-content;
+  animation: scroll 25s linear infinite;
+}
 
-@keyframes infinite-slider {
+@keyframes scroll {
   0% {
     transform: translateX(0);
   }
@@ -35,6 +45,20 @@ body {
   }
 }
 
-.animate-infinite-slider {
-  animation: infinite-slider 18s linear infinite;
+/* Fade left & right edges */
+.fade-mask {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 15%,
+    black 85%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 15%,
+    black 85%,
+    transparent 100%
+  );
 }
