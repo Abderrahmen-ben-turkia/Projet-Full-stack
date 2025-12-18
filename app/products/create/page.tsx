@@ -12,7 +12,7 @@ export default function CreateProduct() {
     name: '',
     price: '',
     category: 'Construction',
-    description: ''
+    description: '' // Déjà initialisé dans votre état [cite: 83]
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -24,19 +24,17 @@ export default function CreateProduct() {
     if (e.target.files) {
       setFile(e.target.files[0]);
     }
-    console.log('hii');
-    
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Create FormData to handle file + text
+    // Utilisation de FormData pour gérer les fichiers et le texte [cite: 90]
     const data = new FormData();
     data.append('name', formData.name);
     data.append('price', formData.price);
     data.append('category', formData.category);
-    data.append('description', formData.description);
+    data.append('description', formData.description); // Envoi de la description au backend
     if (file) data.append('image', file); 
 
     try {
@@ -45,11 +43,12 @@ export default function CreateProduct() {
       });
 
       if (response.status === 201) {
-        alert("Produit créé !");
+        alert("Produit créé avec succès !");
         router.push('/products');
       }
     } catch (error: any) {
-      alert("Erreur lors de l'envoi");
+      console.error("Erreur lors de l'envoi:", error);
+      alert("Erreur lors de la création du produit");
     }
   };
 
@@ -61,38 +60,77 @@ export default function CreateProduct() {
           <Link href="/products" className="text-sm text-gray-500 hover:underline">Back</Link>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 text-black">
+          {/* Nom du produit */}
           <div>
             <label className="block text-sm font-medium mb-2">Product Name</label>
-            <input type="text" name="name" required className="w-full px-4 py-2 border rounded-xl" onChange={handleChange} />
+            <input 
+              type="text" 
+              name="name" 
+              required 
+              className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" 
+              placeholder="Ex: Combinaison de protection"
+              onChange={handleChange} 
+            />
           </div>
           
           <div className="grid grid-cols-2 gap-4">
+            {/* Prix */}
             <div>
               <label className="block text-sm font-medium mb-2">Price (TND)</label>
-              <input type="text" name="price" required className="w-full px-4 py-2 border rounded-xl" onChange={handleChange} />
+              <input 
+                type="text" 
+                name="price" 
+                required 
+                className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" 
+                placeholder="0.00"
+                onChange={handleChange} 
+              />
             </div>
+            {/* Catégorie */}
             <div>
               <label className="block text-sm font-medium mb-2">Category</label>
-              <select name="category" className="w-full px-4 py-2 border rounded-xl" onChange={handleChange}>
+              <select 
+                name="category" 
+                className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" 
+                onChange={handleChange}
+              >
                 <option value="Construction">Construction</option>
                 <option value="Tennis">Tennis</option>
+                <option value="Industrial">Industrial</option>
+                <option value="Safety">Safety</option>
+                <option value="Other">Other</option>
               </select>
             </div>
           </div>
 
-          {/* New Image Input */}
+          {/* AJOUT : Champ Description */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Description</label>
+            <textarea
+              name="description"
+              rows={4}
+              className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+              placeholder="Détails sur la tenue (matière, durabilité, usage...)"
+              onChange={handleChange}
+            ></textarea>
+          </div>
+
+          {/* Image du produit */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
             <input 
               type="file" 
               accept="image/*" 
               onChange={handleFileChange} 
-              className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-blue-50 file:text-blue-700"
+              className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
             />
           </div>
 
-          <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700">
+          <button 
+            type="submit" 
+            className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
+          >
             Create Product
           </button>
         </form>

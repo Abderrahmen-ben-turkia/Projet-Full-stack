@@ -16,36 +16,27 @@ connectDB();
 app.use(cors()); // Autorise le frontend Next.js à communiquer avec le backend
 app.use(express.json()); // Permet de lire le corps des requêtes JSON (req.body)
 
-// 3. ROUTES API
 
-// Create 'uploads' folder if it doesn't exist
 const uploadDir = './uploads';
 if (!fs.existsSync(uploadDir)){
     fs.mkdirSync(uploadDir);
 }
 
-// 1. Configure Multer Storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Folder where images will be saved
   },
   filename: (req, file, cb) => {
-    // Rename file to avoid duplicates: timestamp-originalname
     cb(null, Date.now() + '-' + file.originalname);
   }
 });
 
 const upload = multer({ storage: storage });
 
-// 2. Serve the 'uploads' folder statically so the frontend can see the images
 app.use('/uploads', express.static('uploads'));
 
-/**
- * GET : Récupérer tous les produits
- */
 app.get('/api/products', async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 }); // Récupère et trie par date (plus récent)
+    const products = await Product.find().sort({ createdAt: -1 });
     res.status(200).json(products);
   } catch (error) {
     console.error("Erreur lors de la récupération:", error);
@@ -75,6 +66,59 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
     res.status(201).json(savedProduct);
   } catch (error) {
     res.status(500).json({ message: "Error saving product" });
+  }
+});
+
+app.put('/api/products/:id', upload.single('image'), async (req, res) => {
+  try {
+    const { name, price, category, description } = req.body;
+    let updateData = { name, price, category, description };
+
+    // Si une nouvelle image est téléchargée, on met à jour le chemin
+    if (req.file) {
+      updateData.image = `/uploads/${req.file.filename}`;
+      
+      // OPTIONNEL : Supprimer l'ancienne image du serveur pour gagner de l'espace
+      const oldProduct = await Product.findById(req.params.id);
+      if (oldProduct && oldProduct.image) {
+        const oldPath = path.join(__dirname, oldProduct.image);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true } // Retourne le produit modifié
+    );
+
+    if (!updatedProduct) return res.status(404).json({ message: "Produit non trouvé" });
+    res.status(200).json(updatedProduct);
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la mise à jour", error: error.message });
+  }
+});
+
+/**
+ * DELETE : Supprimer un produit
+ */
+app.delete('/api/products/:id', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: "Produit non trouvé" });
+
+    // Supprimer le fichier image du dossier 'uploads'
+    // if (product.image) {
+    //   const imagePath = path.join(__dirname, product.image);
+    //   if (fs.existsSync(imagePath)) {
+    //     fs.unlinkSync(imagePath);
+    //   }
+    // }
+
+    await Product.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Produit et image supprimés avec succès" });
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de la suppression", error: error.message });
   }
 });
 
