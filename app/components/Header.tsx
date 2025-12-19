@@ -2,6 +2,7 @@ import React from 'react'
 import Image from "next/image";
 import { FaSearch } from "react-icons/fa";
 import { SlBasket } from "react-icons/sl";
+import Link from 'next/link';
 
 function Header() {
     return (
@@ -15,13 +16,15 @@ function Header() {
                     </div>
 
                     {/* CENTER: LOGO */}
-                    <Image
+                    <Link href={"/"}>
+                        <Image
                         src="/logo.jpeg"
                         alt="Construction"
                         width={80}
                         height={60}
                         className="cursor-pointer"
-                    />
+                    />                    
+                    </Link>
 
                     {/* RIGHT: Basket icon */}
                     <SlBasket className="text-2xl cursor-pointer" />

@@ -59,7 +59,7 @@ export default function Home() {
         <div className="grid grid-cols-2 gap-4">
           {[
             { name: 'Construction', slug: 'Construction', img: '/cat-const.jpg' },
-            { name: 'Tennis', slug: 'Tennis', img: '/cat-tennis.jpg' }
+            { name: 'Tennis', slug: 'Tennis', img: '/tenis.jpeg' }
           ].map((cat, index) => (
             <Link
               href={`/products?category=${cat.slug}`}
@@ -84,9 +84,9 @@ export default function Home() {
 
         <div className="grid grid-cols-3 gap-4 mt-6">
           {[
-            { name: 'Industrial', slug: 'Industrial', img: '/cat-const.jpg' },
-            { name: 'Safety', slug: 'Safety', img: '/cat-safety.jpg' },
-            { name: 'Other', slug: 'Other', img: '/cat-const.jpg' }
+            { name: 'Industrial', slug: 'Industrial', img: '/constraction.jpeg' },
+            { name: 'Safety', slug: 'Safety', img: '/safe.jpeg' },
+            { name: 'Other', slug: 'Other', img: '/other.jpeg' }
           ].map((cat, index) => (
             <Link
               href={`/products?category=${cat.slug}`}

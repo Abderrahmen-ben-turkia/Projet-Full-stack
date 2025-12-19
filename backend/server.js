@@ -22,8 +22,10 @@ if (!fs.existsSync(uploadDir)){
     fs.mkdirSync(uploadDir);
 }
 
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // ✅ REQUIRED
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + '-' + file.originalname);
@@ -68,31 +70,22 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
     res.status(500).json({ message: "Error saving product" });
   }
 });
-
-app.put('/api/products/:id', upload.single('image'), async (req, res) => {
+app.put('/api/products/:id', async (req, res) => {
   try {
     const { name, price, category, description } = req.body;
-    let updateData = { name, price, category, description };
 
-    // Si une nouvelle image est téléchargée, on met à jour le chemin
-    if (req.file) {
-      updateData.image = `/uploads/${req.file.filename}`;
-      
-      // OPTIONNEL : Supprimer l'ancienne image du serveur pour gagner de l'espace
-      const oldProduct = await Product.findById(req.params.id);
-      if (oldProduct && oldProduct.image) {
-        const oldPath = path.join(__dirname, oldProduct.image);
-        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-      }
-    }
+    const updateData = { name, price, category, description };
 
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
       updateData,
-      { new: true } // Retourne le produit modifié
+      { new: true } // Return the updated product
     );
 
-    if (!updatedProduct) return res.status(404).json({ message: "Produit non trouvé" });
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Produit non trouvé" });
+    }
+
     res.status(200).json(updatedProduct);
   } catch (error) {
     res.status(500).json({ message: "Erreur lors de la mise à jour", error: error.message });
@@ -106,14 +99,6 @@ app.delete('/api/products/:id', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: "Produit non trouvé" });
-
-    // Supprimer le fichier image du dossier 'uploads'
-    // if (product.image) {
-    //   const imagePath = path.join(__dirname, product.image);
-    //   if (fs.existsSync(imagePath)) {
-    //     fs.unlinkSync(imagePath);
-    //   }
-    // }
 
     await Product.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Produit et image supprimés avec succès" });
